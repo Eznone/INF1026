@@ -48,7 +48,8 @@ print('\n7-Grafico Media do treino X corrida')#inclua a coluna Media
 dfCorredores["MdTreino"] = srMediaTreinos
 
 print('\n8-Grafico Melhor treino X corrida') #inclua a coluna MelhorTreino
-
+dfCorredores["MelhorTreino"] = srtempoMelhorTreino
+dfCorredores.plot.scatter(x = "MelhorTreino", y = "corrida")
 
 print('\n9-Grafico de barras de treinos e corridas')
 
@@ -75,25 +76,37 @@ print(sCorrida18)
 
 #Crie o dfCorridas concatenando as corridas de 2016, 2017 e 2018. Exiba
 print('\n10- dfCorridas')
-
+dfCorridas = pd.concat([sCorrida16, sCorrida17, sCorrida18], axis = 1, join = "inner")
+print(dfCorridas)
 
 #Trabalhando com o dfCorridas, crie e exiba uma series srDesemp informando se o 
 # com o passar dos anos  o desempenho do o corredor melhorou, piorou ou 
 # ficou indefinido. Exiba o desempenho dos corredores
 print('\n11-Desempenho geral nas 3 corridas')
+def analisis(l):
+    if l.corrida2016 < l.corrida2017 and l.corrida2017 < l.corrida2018:
+        return 'PIOROU'
+    elif l.corrida2016 > l.corrida2017 and l.corrida2017 > l.corrida2018:
+        return 'MELHOROU'
+    else:
+        return 'indefinido'
 
 
+srDesempGeral = dfCorridas.apply(analisis, axis = 1)
+print(srDesempGeral)
 
 print('\n12-Exibir graficamente os resultados das 3 corridas')
-
-
+dfCorridas.plot.bar(title = "Resultados", figsize = (8,6))
+plt.show()
 
 print('\n13-Exibir graficamente quantos melhoraram e quantos pioraram percentualmente')
-
-
+srTabFreq = srDesempGeral.value_counts()
+srTabFreq.plot.pie(title = "DesempGeral", autopct = "%.1f")
+plt.show()
 
 print('\n14-Exibir numericamente quantos melhoraram e quantos pioraram percentualmente')
-
+srTabFreqPerc = (srDesempGeral.value_counts() * 100) / (srTabFreq.sum())
+print(srTabFreqPerc)
 
 ################################################################
 # dfInfo criado a partir da planilha info do arq 
@@ -107,15 +120,29 @@ dfInfo = pd.read_excel(path, sheet_name='info',
 print(dfInfo)
 
 print('\n16- Exiba a tabela de frequencia dos estados ')
+srEstadoFreq = dfInfo.ESTADO.value_counts()
+print(srEstadoFreq)
 
 print('\n17- Exiba graficamente o percentual de corredores do RJ ')
-
+sbool = dfInfo.ESTADO == "RJ"
+sbool.replace({True : "DoRJ", False: "NaoDoRJ"}, inplace = True)
+sbool.value_counts().plot.pie(title = "Percentual do Rio", autopct = "%.1f")
+plt.show()
 
 print('\n18- Exiba a tabela de frequencia no cruzamento EQUIPE/ESTADO')
-
+print(pd.crosstab(index = dfInfo.EQUIPE, columns = dfInfo.ESTADO))
 
 print('\n19- Exiba as idades min,max e a quantidade de anos da atividade media por EQUIPE/ESTADO')
+agEE = dfInfo.groupby(["EQUIPE", "ESTADO"])
+print(agEE.agg({'IDADE' : ["min", "max"], 'QtdAnosAtiv' : ["mean"]}))
 
 # Necessario agora criar um df  juntando colunas de interesse de 2 DFs
 print('\n20- Graficamente(dispersao): Relacao entre idade e tempo na corrida de 2018')
+currentCorrida = pd.Series(dfCorredores.corrida.values, index = dfCorredores.nome)
+currentCorrida.name = "currCorrida"
+print(currentCorrida)
+dfIdadeCorrida = pd.concat([dfInfo.IDADE, currentCorrida], axis = 1)
+print(dfIdadeCorrida)
 
+dfIdadeCorrida.plot.scatter(x = "IDADE",  y = "currCorrida")
+plt.show()
