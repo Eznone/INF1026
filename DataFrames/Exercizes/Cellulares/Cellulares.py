@@ -92,7 +92,7 @@ print(dfCelular)
 
 print('\n17- Incluindo Nota Global(NTG) =( 1XTela+1XCamera+2XDesempenho)/4. Exiba' )
 #PESOS: 1, 1 e 2
-dfCelular["NTG"] = (dfNotasCel["NTT"] + dfNotasCel["NCC"] + 2*dfNotasCel["NTD"])
+dfCelular["NTG"] = (dfNotasCel["NTT"] + dfNotasCel["NCC"] + 2*dfNotasCel["NTD"]) / 4
 #print(dfCelular["NTG"])
 print(dfCelular)
 
@@ -123,17 +123,24 @@ print('APENAS OS NOMES dos Modelos que atendem o criterio')
 print('\n21-Categorias (faixas) de nota global: de 0 a 6, de 6(exc) a 7,de 7 a 8, de 8 a 9, acima de 9')
 print('\n- Rotular com "RUIM", "REGULAR","BOM","MUITO BOM","EXCELENTE"')
 print('\n Exibir TabFreq das categorias de nota')
+print(dfCelular.NTG.max())
+faixas = pd.cut(dfCelular.NTG, bins = [0,6,7,8,9,10], labels = ["RUIM","REGULAR","BOM","MUITO BOM", "EXCELENTE"])
 
+print(faixas)
 
+print('\nTab de Freq das Categorias')
+tabFreqCat = faixas.value_counts()
+print(tabFreqCat)
 
 #ATENCAO:
 print('\nTabela de Frequencia Percentual (RELATIVA) das categorias graficamente')
-
+tabFreqCat.plot.pie(title = "Tab Freq Perc das Cat de Nota", autopct = "%.1f")
+plt.show()
 
 #ATENCAO 2:
 print('\nTabela de Frequencia Percentual (RELATIVA) das categorias NUMERICAMENTE')
-
-
+tabFreqCatPer = (tabFreqCat * 100) / (tabFreqCat.sum())
+print(tabFreqCatPer)
 
 print("\n22- Qual(is) o(s) celular(es) de pior desempenho?")
 ntMinDesemp = dfCelular["NTD"].min()
